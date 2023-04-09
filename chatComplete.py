@@ -1,11 +1,12 @@
+import os
 import openai
 import tiktoken
 import discord
 from discord.ext import commands
 
-# Hardcode your API key for testing
-openai.api_key = "your api key"
-discord_bot_token = "Your bot token"
+TOKEN = os.environ.get("DISCORD_BOT_TOKEN")
+
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 system_message = {"role": "system", "content": "You are a helpful assistant. You know a lot about gaming and Esports."}
 max_response_tokens = 250
@@ -64,11 +65,25 @@ async def process_message(user_input):
 async def on_ready():
     print(f"{bot.user} has connected to Discord!")
 
-
 @bot.command()
 async def chat(ctx, *, user_input):
     response = await process_message(user_input)
     await ctx.send(response)
 
+# Add this event handler
+@bot.event
+async def on_message(message):
+    # Ignore messages sent by the bot itself
+    if message.author == bot.user:
+        return
 
-bot.run(discord_bot_token)
+    # Check if the message is a Direct Message
+    if message.guild is None:
+        # Process the message without the !chat command
+        response = await process_message(message.content)
+        await message.channel.send(response)
+    else:
+        # Process commands in other channels
+        await bot.process_commands(message)
+
+bot.run(TOKEN)
