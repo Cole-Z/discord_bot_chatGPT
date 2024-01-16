@@ -86,8 +86,6 @@ async def chat(ctx, *, user_input):
   response = await process_message(user_input)
   await ctx.send(response)
 
-
-# Add this event handler
 @bot.event
 async def on_message(message):
   # Ignore messages sent by the bot itself
@@ -108,11 +106,9 @@ bot.run(TOKEN)
 
     # Check if the message is a Direct Message
     if message.guild is None:
-        # Process the message without the !chat command
         response = await process_message(message.content)
         await message.channel.send(response)
     else:
-        # Process commands in other channels
         await bot.process_commands(message)
 
 bot.run(TOKEN)
